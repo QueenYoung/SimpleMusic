@@ -1,9 +1,8 @@
 import React from 'react';
-import Button from 'material-ui/Button';
+import ModalGallery from './component/ModalGallery';
 
 const App = () => (
-  <Button>
-    Hello World
-  </Button>
+  <ModalGallery />
 );
+
 export default App;

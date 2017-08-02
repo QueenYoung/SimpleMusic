@@ -4674,6 +4674,10 @@ rc@^1.1.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
+react-addons@^0.9.1-deprecated:
+  version "0.9.1-deprecated"
+  resolved "https://registry.yarnpkg.com/react-addons/-/react-addons-0.9.1-deprecated.tgz#24131877d87076c1288fd2569b4b618614dccaf6"
+
 react-dev-utils@^0.5.2:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-0.5.2.tgz#50d0b962d3a94b6c2e8f2011ed6468e4124bc410"

@@ -17,8 +17,10 @@
     "material-ui-icons": "^1.0.0-alpha.19",
     "prop-types": "15.5.10",
     "react": "15.5.4",
+    "react-addons": "^0.9.1-deprecated",
     "react-dom": "15.5.4",
     "react-router-dom": "4.1.1",
+    "react-transition-group": "^2.2.0",
     "remarkable": "^1.7.1"
   },
   "scripts": {
