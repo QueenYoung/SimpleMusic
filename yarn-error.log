@@ -1,0 +1,53 @@
+Arguments: 
+  /usr/local/bin/node /usr/local/bin/yarn install
+
+PATH: 
+  /Library/Developer/Toolchains/swift-latest.xctoolchain/usr/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/usr/local/git/bin:/Users/youngqueen/mongodb/bin:/Users/youngqueen/Library/Haskell/bin/:/Users/youngqueen/.config/yarn/global/node_modules/.bin/
+
+Yarn version: 
+  0.27.5
+
+Node version: 
+  8.2.1
+
+Platform: 
+  darwin x64
+
+npm manifest: 
+  {
+    "name": "basics",
+    "version": "0.1.0",
+    "private": true,
+    "devDependencies": {
+      "concurrently": "3.4.0",
+      "react-scripts": "0.9.5",
+      "fsr-helpers": "file:../../fsr-helpers"
+    },
+    "dependencies": {
+      "history": "4.3.0",
+      "prop-types": "15.5.10",
+      "react": "15.5.4",
+      "react-dom": "15.5.4",
+      "react-router-dom": "4.1.1"
+    },
+    "scripts": {
+      "start": "react-scripts start",
+      "build": "react-scripts build",
+      "eject": "react-scripts eject",
+      "e2e": "nightwatch",
+      "run-e2e": "./node_modules/.bin/concurrently -k 'npm start' 'npm run e2e'"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
+
+Trace: 
+  Error: https://registry.yarnpkg.com/history: ETIMEDOUT
+      at Timeout._onTimeout (/usr/local/Cellar/yarn/0.27.5/libexec/lib/yarn-cli.js:114906:19)
+      at ontimeout (timers.js:469:11)
+      at tryOnTimeout (timers.js:304:5)
+      at Timer.listOnTimeout (timers.js:264:5)
