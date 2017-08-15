@@ -37,7 +37,7 @@ const NoMatchExample = () => (
           <Link to="/will-match">Will Match</Link>
         </li>
         <li>
-          <Link to="/will-not-match">Will Not Match</Link>
+          <Link to="/will-not-match">Will Not Match</Lik>
         </li>
         <li>
           <Link to="/also/will/not/match">Also will not match</Link>
