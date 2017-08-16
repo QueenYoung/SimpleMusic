@@ -13,7 +13,7 @@ import PlayList from './Playlist';
 const styleSheet = createStyleSheet(() => ({
   appBar: {
     position: 'relative',
-    height: 100
+
   },
   flex: {
     flex: 1

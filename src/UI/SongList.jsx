@@ -4,12 +4,16 @@ import { withStyles, createStyleSheet } from 'material-ui/styles';
 import List, { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
 import PlayIcon from 'material-ui-icons/PlayArrow';
 import PauseIcon from 'material-ui-icons/Pause';
+import Snackbar from 'material-ui/Snackbar';
+// import Slide from 'material-ui/transitions/Slide';
+// import { CircularProgress } from 'material-ui/Progress';
+import MusicPlay from './Card';
 import { api, getMusic } from '../client/recommendPlaylist.js';
 import blue from 'material-ui/colors/blue';
 
 const styleSheet = createStyleSheet(theme => ({
   root: {
-    maxWidth: '80%',
+    maxWidth: '50%',
     background: theme.palette.background.paper
   },
   button: {
@@ -19,12 +23,112 @@ const styleSheet = createStyleSheet(theme => ({
 
 class SongList extends Component {
   state = {
-    currentPlay: {}
+    showPlaying: false,
+    hasError: false,
+    currentPlay: -1,
+    playOrder: Array(this.props.tracks.length).fill(0).map((_, i) => i),
+    currentPlaySong: {}
   };
+
+  music = document.querySelector('#music');
+  
+  handleSwitchSong = (direction) => {
+    const { tracks } = this.props;
+    const { playOrder, currentPlay } = this.state;
+    const isNext = direction === 'right' ? 1 : -1;
+    const nextPlayer = playOrder.indexOf(currentPlay) + isNext;
+    if (nextPlayer < 0) return;
+
+    this.playMusic(tracks[nextPlayer].id, nextPlayer);
+  }
+
+  handleNextSong = () => {
+    this.handleSwitchSong('right');
+  }
+
+  handlePrevSong = () => {
+    this.handleSwitchSong('left');
+  }
+
+  audioEventListener = (music = this.music) => {
+    music.addEventListener('ended', e => {
+      this.handleSwitchSong('right');
+    });  
+
+    music.addEventListener('loadstart', () => {
+      console.log('load start');
+      this.music.play();
+      this.setState({
+        showPlaying: true
+      });
+    })
+  }
+
+  setCurrentPlaySong = (track, currentPlay) => {
+    console.log(track);
+    const { name: songName, ar: [{ name: singer }], al: { picUrl } } = track;
+    this.setState({
+      currentPlaySong: { songName, singer, picUrl },
+      currentPlay
+    });
+  }
+
+  componentDidMount() {
+    this.audioEventListener(); 
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { playOrder } = nextProps;
+    this.setState({ playOrder, currentPlay: playOrder[0] }, () => {
+      const findId = this.props.tracks[playOrder[this.state.currentPlay]].id;
+      this.playMusic(findId);
+    });
+  }
+
+  playMusic(id, nextIndex) {
+    const { tracks } = this.props;
+    const { currentPlay } = this.state;
+
+    const indexBeClick = nextIndex === undefined
+      ? tracks.findIndex(track => track.id === id)
+      : nextIndex;
+
+    const track = tracks[indexBeClick];
+    console.log(indexBeClick, track)
+
+    if (indexBeClick === currentPlay) {
+      if (this.music.paused) {
+        this.music.play();
+      } else {
+        this.music.pause();
+       }
+    } else {
+      getMusic(api.music, { id })
+        .then(({ data: [{ url }] }) => {
+          try {
+            console.log(url);
+            this.music.src = url;
+          } catch (err) {
+            return Promise.reject(err);
+          }
+        })
+        .then(() => {
+          console.log('get music?');
+          this.setCurrentPlaySong(track, indexBeClick);
+        })
+        .catch((error) => {
+          console.log('error!   ', error);
+          this.setState({
+            hasError: true
+          }, () => {
+            setTimeout(() => this.setState({ hasError: false }), 1500);
+          })
+        })
+    }
+  }
 
   handleClickItem = e => {
     const target = e.target;
-    console.log(target);
     let id;
     if (target.tagName === 'LI') {
       id = target.children[1].id;
@@ -33,51 +137,37 @@ class SongList extends Component {
     } else if (target.tagName === 'DIV') {
       id = target.id;
     }
-
-    console.log(id);
-    let music = document.querySelector('#music');
-    if (this.state.currentPlay[id] === true) {
-      this.setState(
-        prev => {
-          return Object.assign(prev, { [id]: false });
-        },
-        () => music.pause()
-      );
-    } else if (this.state.currentPlay[id] === false) {
-      this.setState(
-        prev => {
-          return Object.assign(prev, { [id]: true });
-        },
-        () => music.play()
-      );
-    } else {
-      getMusic(api.music, { id: id })
-        .then(({ data: [{ url }] }) => {
-        music.src = url;
-        music.play();
-      }).then(() => {
-        this.setState((prev) => {
-          Object.assign(prev, { [id]: true })
-        });
-      }).catch(err => console.log(err));
-    }
-  }
+    this.playMusic(+id);
+  };
 
   render() {
     const { tracks, classes } = this.props;
     return (
-      <List className={classes.root} onClick={this.handleClickItem}>
-        {tracks.map(({ name, id }) =>
-          <ListItem button key={id}>
-            <ListItemIcon>
-              {!!this.state.currentPlay[`${id}`]
-                ? <PauseIcon className={classes.button} />
-                : <PlayIcon className={classes.button} />}
-            </ListItemIcon>
-            <ListItemText inset primary={name} id={id} />
-          </ListItem>
-        )}
-      </List>
+      <div>
+        <List className={classes.root} onClick={this.handleClickItem}>
+          {tracks.map(({ name, id }, i) =>
+            <ListItem button key={id}>
+              <ListItemIcon>
+                { this.state.currentPlay === i
+                  ? <PauseIcon className={classes.button} />
+                  : <PlayIcon className={classes.button} />}
+              </ListItemIcon>
+              <ListItemText inset primary={name} id={id} />
+            </ListItem>
+          )}
+        </List>
+        <MusicPlay
+          show={this.state.showPlaying}
+          {...this.state.currentPlaySong}
+          handleNextSong={this.handleNextSong}
+          handlePrevSong={this.handlePrevSong}
+        />
+        <Snackbar
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          open={this.state.hasError}
+          message={<p>出错了🙈! 应该是网络问题</p>}
+        />
+      </div>
     );
   }
 }

@@ -14,7 +14,7 @@ import IconButton from 'material-ui/IconButton';
 import Typography from 'material-ui/Typography';
 import red from 'material-ui/colors/red';
 import FavoriteIcon from 'material-ui-icons/Favorite';
-import ShareIcon from 'material-ui-icons/Share';
+import ShuffleIcon from 'material-ui-icons/Shuffle';
 import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import { CircularProgress } from 'material-ui/Progress';
 import SongList from './SongList';
@@ -42,18 +42,27 @@ const styleSheet = createStyleSheet(theme => ({
   },
   cardImg: {
     objectFit: 'cover',
-    height: 300
+    height: 300,
+    margin: '1rem'
   }
 }));
 
 class PlayList extends Component {
   state = {
-    expanded: false,
+    expanded: true,
   };
 
   handleExpandClick = () => {
     this.setState({ expanded: !this.state.expanded });
   };
+
+  handleShuffleClick = () => {
+    let length = this.state.playlist.tracks.length;
+    if (!length) return;
+    this.setState({
+      playOrder: shuffle(length)
+    })
+  }
 
   componentDidMount() {
     if (this.state.playlist) return;
@@ -72,14 +81,15 @@ class PlayList extends Component {
       style={{margin: 'auto', padding: '0 0 10px 0', width: 180}}
     />
     const classes = this.props.classes;
-    const { name, coverImgUrl, tags, description, tracks } = this.state.playlist;
+    const { playOrder,
+      playlist: { name, coverImgUrl, tags, description, tracks,
+        creator: { avatarUrl } },
+     } = this.state;
     return (
         <Card className={classes.card}>
           <CardHeader
             avatar={
-              <Avatar aria-label="Recipe" className={classes.avatar}>
-                R
-              </Avatar>
+            <Avatar aria-label="Recipe" className={classes.avatar} src={avatarUrl}/>
             }
             title={name}
             subheader={tags.join(', ')}
@@ -96,8 +106,8 @@ class PlayList extends Component {
             <IconButton aria-label="Add to favorites">
               <FavoriteIcon />
             </IconButton>
-            <IconButton aria-label="Share">
-              <ShareIcon />
+            <IconButton aria-label="ShufflePlay" onClick={this.handleShuffleClick}>
+              <ShuffleIcon />
             </IconButton>
             <div className={classes.flexGrow} />
             <IconButton
@@ -120,8 +130,7 @@ class PlayList extends Component {
               <Typography paragraph type="headline">
                 {`播放列表: 共 ${tracks.length} 首歌`}
               </Typography>
-              <SongList
-              tracks={tracks} />
+              <SongList {...{tracks, playOrder}}/>
             </CardContent>
           </Collapse>
         </Card>
@@ -134,3 +143,12 @@ PlayList.propTypes = {
 };
 
 export default withStyles(styleSheet)(PlayList);
+
+function shuffle(length) {
+  let array = Array(length).fill(0).map((_, i) => i);
+  for (let i = 0; i < length - 1; ++i) {
+    let rdi = ~~(Math.random() * (length - i)) + i;
+    [array[i], array[rdi]] = [array[rdi], array[i]];
+  }
+  return array;
+}
