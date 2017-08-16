@@ -59,23 +59,8 @@ class NowPlayingCard extends Component {
     completed: 0
   };
 
-  componentWillReceiveProps() {
-    const music = document.querySelector('#music');
-    const progress = timestamp => {
-      console.log('j');
-      const now = Math.floor(music.currentTime / music.duration) * 100;
-      this.setState({
-        completed: now
-      }, () => {
-        if (this.state.completed < 100) {
-          requestAnimationFrame(progress);
-        }
-      });
-    };
-    requestAnimationFrame(progress);
-  }
-
   onClickPlayButton = () => {
+    this.props.handlePlay();
     this.setState(prevState => {
       return {
         played: !prevState.played
@@ -106,7 +91,7 @@ class NowPlayingCard extends Component {
               <Typography type="subheading" color="secondary">
                 {singer}
               </Typography>
-              <LinearProgress mode='determinate' value={this.state.completed}/>
+              <LinearProgress mode='determinate' value={this.props.progress}/>
             </CardContent>
             <CardActions className={classes.controls}>
               <IconButton

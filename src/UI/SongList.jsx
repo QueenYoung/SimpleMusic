@@ -27,12 +27,13 @@ class SongList extends Component {
     hasError: false,
     currentPlay: -1,
     playOrder: Array(this.props.tracks.length).fill(0).map((_, i) => i),
-    currentPlaySong: {}
+    currentPlaySong: {},
+    completed: 0
   };
 
   music = document.querySelector('#music');
-  
-  handleSwitchSong = (direction) => {
+
+  handleSwitchSong = direction => {
     const { tracks } = this.props;
     const { playOrder, currentPlay } = this.state;
     const isNext = direction === 'right' ? 1 : -1;
@@ -40,74 +41,95 @@ class SongList extends Component {
     if (nextPlayer < 0) return;
 
     this.playMusic(tracks[nextPlayer].id, nextPlayer);
-  }
+  };
 
   handleNextSong = () => {
     this.handleSwitchSong('right');
-  }
+  };
 
   handlePrevSong = () => {
     this.handleSwitchSong('left');
-  }
+  };
 
+  handlePlay = () => {
+    if (this.music.paused) {
+      this.music.play();
+    } else {
+      this.music.pause();
+    }
+  };
+
+  progress = () => {
+    const now = Math.floor(this.music.currentTime / this.music.duration * 100);
+    this.setState({
+      completed: now
+    });
+    if (now >= 100) {
+      clearInterval(this.interval);
+    }
+  }
   audioEventListener = (music = this.music) => {
     music.addEventListener('ended', e => {
       this.handleSwitchSong('right');
-    });  
+    });
 
-    music.addEventListener('loadstart', () => {
-      console.log('load start');
+    music.addEventListener('playing', () => {
+      console.log('play start');
       this.music.play();
-      this.setState({
-        showPlaying: true
-      });
+      this.setState({ showPlaying: true });
+      this.interval = setInterval(this.progress, 500);
+    });
+
+    music.addEventListener('pause', () => {
+      clearInterval(this.interval);
     })
-  }
+  };
 
   setCurrentPlaySong = (track, currentPlay) => {
-    console.log(track);
     const { name: songName, ar: [{ name: singer }], al: { picUrl } } = track;
     this.setState({
       currentPlaySong: { songName, singer, picUrl },
       currentPlay
     });
-  }
+  };
 
   componentDidMount() {
-    this.audioEventListener(); 
+    this.audioEventListener();
   }
 
   componentWillReceiveProps(nextProps) {
     const { playOrder } = nextProps;
     this.setState({ playOrder, currentPlay: playOrder[0] }, () => {
-      const findId = this.props.tracks[playOrder[this.state.currentPlay]].id;
+      const findId = this.props.tracks[playOrder[0]].id;
       this.playMusic(findId);
     });
   }
 
   playMusic(id, nextIndex) {
-    const { tracks } = this.props;
+    const { tracks, playOrder } = this.props;
     const { currentPlay } = this.state;
 
-    const indexBeClick = nextIndex === undefined
-      ? tracks.findIndex(track => track.id === id)
-      : nextIndex;
+    const indexBeClick =
+      nextIndex === undefined
+        ? tracks.findIndex(track => track.id === id)
+        : nextIndex;
 
-    const track = tracks[indexBeClick];
-    console.log(indexBeClick, track)
+    const track = tracks[playOrder[indexBeClick]];
+    console.log(indexBeClick, track);
 
     if (indexBeClick === currentPlay) {
       if (this.music.paused) {
         this.music.play();
       } else {
         this.music.pause();
-       }
+      }
     } else {
       getMusic(api.music, { id })
         .then(({ data: [{ url }] }) => {
           try {
-            console.log(url);
             this.music.src = url;
+            this.music.play();
+            this.setState({ completed: 0 });
           } catch (err) {
             return Promise.reject(err);
           }
@@ -116,14 +138,17 @@ class SongList extends Component {
           console.log('get music?');
           this.setCurrentPlaySong(track, indexBeClick);
         })
-        .catch((error) => {
+        .catch(error => {
           console.log('error!   ', error);
-          this.setState({
-            hasError: true
-          }, () => {
-            setTimeout(() => this.setState({ hasError: false }), 1500);
-          })
-        })
+          this.setState(
+            {
+              hasError: true
+            },
+            () => {
+              setTimeout(() => this.setState({ hasError: false }), 2000);
+            }
+          );
+        });
     }
   }
 
@@ -148,7 +173,7 @@ class SongList extends Component {
           {tracks.map(({ name, id }, i) =>
             <ListItem button key={id}>
               <ListItemIcon>
-                { this.state.currentPlay === i
+                {this.state.currentPlay === i
                   ? <PauseIcon className={classes.button} />
                   : <PlayIcon className={classes.button} />}
               </ListItemIcon>
@@ -161,11 +186,20 @@ class SongList extends Component {
           {...this.state.currentPlaySong}
           handleNextSong={this.handleNextSong}
           handlePrevSong={this.handlePrevSong}
+          handlePlay={this.handlePlay}
+          progress={this.state.completed}
         />
         <Snackbar
           anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
           open={this.state.hasError}
-          message={<p>出错了🙈! 应该是网络问题</p>}
+          message={
+            <p>
+              出错了<span role="img" aria-label="emoji">
+                🙈!
+              </span>{' '}
+              应该是网络问题
+            </p>
+          }
         />
       </div>
     );
