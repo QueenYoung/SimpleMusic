@@ -55,7 +55,7 @@ const styleSheet = createStyleSheet({
 
 class NowPlayingCard extends Component {
   state = {
-    played: true,
+    played: !this.props.iconShowPlay,
     completed: 0
   };
 
@@ -73,7 +73,7 @@ class NowPlayingCard extends Component {
     const { classes, songName, singer, picUrl, show } = this.props;
     return (
       <Card className={classes.card} raised
-        style={{ display: show ? 'flex' : 'none' }}>
+        style={{ visibility: show ? 'visible' : 'hidden' }}>
         <div className={classes.details}>
           <div className={classes.cover}>
             <img
