@@ -64,10 +64,12 @@ class PlayList extends Component {
     })
   }
 
+
   componentDidMount() {
     if (this.state.playlist) return;
     getMusic(api.playlist, { id: this.props.id })
       .then(list => {
+        console.log(`get playlist with ${this.props.id}.`);
         this.setState({
           playlist: list.playlist
         })

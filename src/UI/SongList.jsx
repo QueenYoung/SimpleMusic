@@ -47,8 +47,8 @@ class SongList extends Component {
   };
 
   componentWillUnmount() {
-    // cancelAnimationFrame(this.animationId);
-    clearInterval(this.animationId);
+    this.music.pause();   
+    this.audioRemoveListener();
     console.log('Bye.');
   }
 
@@ -61,49 +61,82 @@ class SongList extends Component {
   };
 
   handlePlay = () => {
-    if (this.music.paused) {
-      this.music.play();
+    const { music } = this;
+    const paused = music.paused;
+    if (paused) {
+      music.play();
     } else {
-      this.music.pause();
+      music.pause();
     }
     this.setState((prev) => ({ iconShowPlay: !prev.iconShowPlay }))
+    return !paused;
   };
 
-  progress = (timestamp) => {
-    const now = this.music.currentTime / this.music.duration * 100;
-    this.setState({
-      completed: now
+  progress = () => {
+    requestAnimationFrame((timestamp) => {
+      const now = this.music.currentTime / this.music.duration * 100;
+      this.setState({
+        completed: now
+      });
     });
   }
 
-  audioEventListener = (music = this.music) => {
-    music.addEventListener('ended', e => {
-      this.handleSwitchSong('right');
-    });
 
-    music.addEventListener('canplay', () => {
+  eventListeners = {
+    songEnded() {
+      this.handleSwitchSong('right');
+    },
+    musicStart() {
       console.log('play start');
       this.music.play();
-    })
-
-    music.addEventListener('playing', () => {
+    },
+    animationReset() {
       console.log('play again');
-      cancelAnimationFrame(this.animationId);
-      this.setState({ showPlaying: true });
-      // this.animationId = requestAnimationFrame(this.progress);
-      this.animationId = setInterval(this.progress, 500);
-    });
-
-    music.addEventListener('pause', () => {
-      // cancelAnimationFrame(this.animationId);
       clearInterval(this.animationId);
-    });
-
-    music.addEventListener('error', () => {
-      // cancelAnimationFrame(this.animationId);
-      clearInterval(this.progress, 500);
+      this.setState({ showPlaying: true });
+      this.animationId = setInterval(this.progress, 500);
+    },
+    clearAnimation() {
+      clearInterval(this.animationId);
+    },
+    handleError() {
+      clearInterval(this.animationId);
       setTimeout(() => this.setState({ hasError: false }), 2000);
-    });
+    }
+  }
+
+  audioAddListener = () => {
+    const { music } = this;
+    const {
+      songEnded,
+      musicStart,
+      animationReset,
+      clearAnimation,
+      handleError
+    } = this.eventListeners;
+
+    music.addEventListener('ended', songEnded.bind(this));
+    music.addEventListener('canplay', musicStart.bind(this));
+    music.addEventListener('playing', animationReset.bind(this));
+    music.addEventListener('pause', clearAnimation.bind(this));
+    music.addEventListener('error', handleError.bind(this));
+  }
+
+  audioRemoveListener = () => {
+    const { music } = this;
+    const {
+      songEnded,
+      musicStart,
+      animationRest,
+      clearAnimation,
+      handleError
+    } = this.eventListeners;
+    music.addEventListener('ended', songEnded);
+    music.addEventListener('canplay', musicStart);
+    music.addEventListener('playing', animationRest);
+    music.addEventListener('pause', clearAnimation);
+
+    music.addEventListener('error', handleError);
   }
 
   setCurrentPlaySong = (track, currentPlay) => {
@@ -115,12 +148,12 @@ class SongList extends Component {
   };
 
   componentDidMount() {
-    this.audioEventListener();
+    this.audioAddListener();
   }
 
   componentWillReceiveProps(nextProps) {
     const { playOrder } = nextProps;
-    console.log(playOrder);
+    if (!playOrder) return;
     this.setState({ playOrder }, () => {
       const findId = this.props.tracks[playOrder[0]].id;
       this.playMusic(findId, playOrder[0]);

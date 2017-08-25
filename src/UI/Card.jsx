@@ -55,19 +55,22 @@ const styleSheet = createStyleSheet({
 
 class NowPlayingCard extends Component {
   state = {
-    played: !this.props.iconShowPlay,
+    played: true,
     completed: 0
   };
 
   onClickPlayButton = () => {
-    this.props.handlePlay();
+    const playState = this.props.handlePlay();
     this.setState(prevState => {
       return {
-        played: !prevState.played
+        played: !playState
       };
     });
   };
 
+  componentWillReceiveProps(nextProps) {
+    this.setState({played: !nextProps.iconShowPlay})
+  }
 
   render() {
     const { classes, songName, singer, picUrl, show } = this.props;
