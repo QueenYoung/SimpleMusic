@@ -10,20 +10,29 @@ const api = {
   recommendSong: '/personalized/newsong'
 };
 
-async function getMusic(url, params = {}) {
+function timeout(ms) {
+  return new Promise((_, reject) => {
+    setTimeout(() => reject('timeout'), ms);
+  });
+}
+
+function getMusic(url, params = {}) {
   let query = Object.entries(params)
     .map(([key, value]) => `${key}=${value}`)
     .join('&');
   console.log(url + query);
-  const json = await fetch(url + query, {
-    headers: new Headers({
-      Accept: 'application/json'
-    }),
-    cache: 'default'
-  })
-    .then(checkStatus)
-    .then(parseJson);
-  return json;
+
+  return Promise.race([
+    timeout(10000),
+    fetch(url + query, {
+      headers: new Headers({
+        Accept: 'application/json'
+      }),
+      cache: 'default'
+    })
+      .then(checkStatus)
+      .then(parseJson)
+  ]);
 }
 
 const audioCtx = new AudioContext();

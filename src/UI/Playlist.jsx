@@ -20,6 +20,7 @@ import { CircularProgress } from 'material-ui/Progress';
 import SongList from './SongList';
 import { api, getMusic } from '../client/recommendPlaylist.js';
 
+
 const styleSheet = createStyleSheet(theme => ({
   card: {
     maxWidth: '100%',
@@ -47,14 +48,18 @@ const styleSheet = createStyleSheet(theme => ({
   }
 }));
 
+
 class PlayList extends Component {
   state = {
-    expanded: true,
+    expanded: true
   };
 
   handleExpandClick = () => {
     this.setState({ expanded: !this.state.expanded });
   };
+  componentWillUnmount() {
+    console.log('I am die!');
+  }
 
   handleShuffleClick = () => {
     let length = this.state.playlist.tracks.length;
@@ -64,10 +69,9 @@ class PlayList extends Component {
     })
   }
 
-
   componentDidMount() {
     if (this.state.playlist) return;
-    getMusic(api.playlist, { id: this.props.id })
+      getMusic(api.playlist, { id: this.props.id })
       .then(list => {
         console.log(`get playlist with ${this.props.id}.`);
         this.setState({

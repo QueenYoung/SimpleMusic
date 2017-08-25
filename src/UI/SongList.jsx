@@ -94,7 +94,7 @@ class SongList extends Component {
       console.log('play again');
       clearInterval(this.animationId);
       this.setState({ showPlaying: true });
-      this.animationId = setInterval(this.progress, 500);
+      this.animationId = setInterval(this.progress, 1000);
     },
     clearAnimation() {
       clearInterval(this.animationId);
@@ -127,16 +127,16 @@ class SongList extends Component {
     const {
       songEnded,
       musicStart,
-      animationRest,
+      animationReset,
       clearAnimation,
       handleError
     } = this.eventListeners;
-    music.addEventListener('ended', songEnded);
-    music.addEventListener('canplay', musicStart);
-    music.addEventListener('playing', animationRest);
-    music.addEventListener('pause', clearAnimation);
+    music.addEventListener('ended', songEnded.bind(this));
+    music.addEventListener('canplay', musicStart.bind(this));
+    music.addEventListener('playing', animationReset.bind(this));
+    music.addEventListener('pause', clearAnimation.bind(this));
 
-    music.addEventListener('error', handleError);
+    music.addEventListener('error', handleError.bind(this));
   }
 
   setCurrentPlaySong = (track, currentPlay) => {
