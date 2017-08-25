@@ -47,7 +47,8 @@ class SongList extends Component {
   };
 
   componentWillUnmount() {
-    requestAnimationFrame(this.animationId);
+    // cancelAnimationFrame(this.animationId);
+    clearInterval(this.animationId);
     console.log('Bye.');
   }
 
@@ -65,18 +66,14 @@ class SongList extends Component {
     } else {
       this.music.pause();
     }
-    this.setState((prev) => ({iconShowPlay: !prev.iconShowPlay}))
+    this.setState((prev) => ({ iconShowPlay: !prev.iconShowPlay }))
   };
 
   progress = (timestamp) => {
     const now = this.music.currentTime / this.music.duration * 100;
-    // console.log(this.animationId);
     this.setState({
       completed: now
     });
-    if (now < 100) {
-      this.animationId = requestAnimationFrame(this.progress);
-    }
   }
 
   audioEventListener = (music = this.music) => {
@@ -93,15 +90,18 @@ class SongList extends Component {
       console.log('play again');
       cancelAnimationFrame(this.animationId);
       this.setState({ showPlaying: true });
-      this.animationId = requestAnimationFrame(this.progress);
+      // this.animationId = requestAnimationFrame(this.progress);
+      this.animationId = setInterval(this.progress, 500);
     });
 
     music.addEventListener('pause', () => {
-      cancelAnimationFrame(this.animationId);
+      // cancelAnimationFrame(this.animationId);
+      clearInterval(this.animationId);
     });
 
     music.addEventListener('error', () => {
-      cancelAnimationFrame(this.animationId);
+      // cancelAnimationFrame(this.animationId);
+      clearInterval(this.progress, 500);
       setTimeout(() => this.setState({ hasError: false }), 2000);
     });
   }
