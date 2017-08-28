@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles, createStyleSheet } from 'material-ui/styles';
+import { withStyles } from 'material-ui/styles';
 import Card, { CardContent, CardActions } from 'material-ui/Card';
 import IconButton from 'material-ui/IconButton';
 import Typography from 'material-ui/Typography';
@@ -11,7 +11,7 @@ import blue from 'material-ui/colors/lightBlue';
 import SkipNextIcon from 'material-ui-icons/SkipNext';
 import { LinearProgress } from 'material-ui/Progress';
 
-const styleSheet = createStyleSheet({
+const styleSheet = {
   card: {
     display: 'flex',
     backgroundColor: blue[50],
@@ -51,7 +51,7 @@ const styleSheet = createStyleSheet({
     flexDirection: 'row',
     alignItems: 'center'
   }
-});
+};
 
 class NowPlayingCard extends Component {
   state = {

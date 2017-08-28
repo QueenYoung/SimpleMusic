@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles, createStyleSheet } from 'material-ui/styles';
+import { withStyles } from 'material-ui/styles';
 import Dialog from 'material-ui/Dialog';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
@@ -10,7 +10,7 @@ import CloseIcon from 'material-ui-icons/Close';
 import Slide from 'material-ui/transitions/Slide';
 import PlayList from './Playlist';
 
-const styleSheet = createStyleSheet(() => ({
+const styleSheet = {
   appBar: {
     position: 'relative',
 
@@ -18,7 +18,7 @@ const styleSheet = createStyleSheet(() => ({
   flex: {
     flex: 1
   }
-}));
+};
 
 class ListDialog extends Component {
   state = {

@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { createStyleSheet, withStyles } from 'material-ui/styles';
+import { withStyles } from 'material-ui/styles';
 import { GridList, GridListTile, GridListTileBar } from 'material-ui/GridList';
 import Subheader from 'material-ui/List/ListSubheader';
 import IconButton from 'material-ui/IconButton';
-import InfoIcon from 'material-ui-icons/Info';
+import Headset from 'material-ui-icons/Headset';
 import { LinearProgress } from 'material-ui/Progress';
-// import { CircularProgress } from 'material-ui/Progress';
 import { api, getMusic } from '../client/recommendPlaylist.js';
 import { Link } from 'react-router-dom';
+import Appbar from './Appbar';
 
-const styleSheet = createStyleSheet(theme => ({
+const styleSheet = theme => ({
   container: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -30,7 +30,7 @@ const styleSheet = createStyleSheet(theme => ({
     height: 'auto'
     // margin: `${theme.spacing.unit * 4}px  0`
   },
-}));
+});
 
 /**
  * 
@@ -58,7 +58,7 @@ class GridMusicList extends Component {
   };
 
   render() {
-    const { id, name, picUrl, copywriter } = this.props;
+    const { id, name, picUrl, copywriter, playCount } = this.props;
     return (
       <GridListTile style={{ width: '48%', margin: 10, borderRadius: 10 }}>
         <Link to={`playlist/${id}`}>
@@ -80,9 +80,17 @@ class GridMusicList extends Component {
             </span>
           }
           actionIcon={
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}>
             <IconButton>
-              <InfoIcon color="rgba(255, 255, 255, 0.54)" />
+              <Headset color="rgba(255, 255, 255, 0.54)" />
             </IconButton>
+            <span style={{ color: 'white', marginTop: -10, fontSize: 12}}>{(playCount / 10000).toFixed(1)}万</span>
+            </div>
           }
         />
       </GridListTile>
@@ -113,6 +121,7 @@ class TitlebarGridList extends Component {
       <div className={classes.container}>
         <GridList cellHeight={hasLoad ? 300 : 20} className={classes.gridList}
           cols={hasLoad ? 2 : 1} spacing={10}>
+          <Appbar/>
           <GridListTile key="Subheader" cols={2} style={{ height: 'auto' }}>
             <Subheader>热门歌单</Subheader>
           </GridListTile>

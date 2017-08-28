@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles, createStyleSheet } from 'material-ui/styles';
+import { withStyles } from 'material-ui/styles';
 import classnames from 'classnames';
 import Card, {
   CardHeader,
-  CardMedia,
   CardContent,
   CardActions
 } from 'material-ui/Card';
@@ -20,8 +19,7 @@ import { CircularProgress } from 'material-ui/Progress';
 import SongList from './SongList';
 import { api, getMusic } from '../client/recommendPlaylist.js';
 
-
-const styleSheet = createStyleSheet(theme => ({
+const styleSheet = theme => ({
   card: {
     maxWidth: '100%',
     overflow: 'auto'
@@ -44,10 +42,9 @@ const styleSheet = createStyleSheet(theme => ({
   cardImg: {
     objectFit: 'cover',
     height: 300,
-    margin: '1rem'
+    marginLeft: '1rem'
   }
-}));
-
+});
 
 class PlayList extends Component {
   state = {
@@ -66,80 +63,95 @@ class PlayList extends Component {
     if (!length) return;
     this.setState({
       playOrder: shuffle(length)
-    })
-  }
+    });
+  };
 
   componentDidMount() {
-    if (this.state.playlist) return;
-      getMusic(api.playlist, { id: this.props.id })
+    getMusic(api.playlist, { id: this.props.id })
       .then(list => {
         console.log(`get playlist with ${this.props.id}.`);
         this.setState({
           playlist: list.playlist
-        })
+        });
       })
-      .catch(err => console.log(err))
+      .catch(err => console.log(err));
   }
 
   render() {
-    if (!this.state.playlist) return <CircularProgress
-      color="accent" size={80} 
-      style={{margin: 'auto', padding: '0 0 10px 0', width: 180}}
-    />
+    if (!this.state.playlist)
+      return (
+        <CircularProgress
+          color="accent"
+          size={80}
+          style={{ margin: 'auto', padding: '0 0 10px 0', width: 180 }}
+        />
+      );
     const classes = this.props.classes;
-    const { playOrder,
-      playlist: { name, coverImgUrl, tags, description, tracks,
-        creator: { avatarUrl } },
-     } = this.state;
+    const {
+      playOrder,
+      playlist: {
+        name,
+        coverImgUrl,
+        tags,
+        description,
+        tracks,
+        creator: { avatarUrl }
+      }
+    } = this.state;
     return (
-        <Card className={classes.card}>
-          <CardHeader
-            avatar={
-            <Avatar aria-label="Recipe" className={classes.avatar} src={avatarUrl}/>
-            }
-            title={name}
-            subheader={tags.join(', ')}
-          />
-          <CardMedia>
-            <img src={coverImgUrl}
-              className={classes.cardImg}
-              alt="Contemplative Reptile" />
-          </CardMedia>
-          <CardContent>
-            <Typography component="p">{description}</Typography>
-          </CardContent>
-          <CardActions disableActionSpacing>
-            <IconButton aria-label="Add to favorites">
-              <FavoriteIcon />
-            </IconButton>
-            <IconButton aria-label="ShufflePlay" onClick={this.handleShuffleClick}>
-              <ShuffleIcon />
-            </IconButton>
-            <div className={classes.flexGrow} />
-            <IconButton
-              className={classnames(classes.expand, {
-                [classes.expandOpen]: this.state.expanded
-              })}
-              onClick={this.handleExpandClick}
-              aria-expanded={this.state.expanded}
-              aria-label="Show more"
-            >
-              <ExpandMoreIcon />
-            </IconButton>
-          </CardActions>
-          <Collapse
-            in={this.state.expanded}
-            transitionDuration="auto"
-            unmountOnExit
+      <Card className={classes.card}>
+        <CardHeader
+          avatar={
+            <Avatar
+              aria-label="Recipe"
+              className={classes.avatar}
+              src={avatarUrl}
+            />
+          }
+          title={name}
+          subheader={tags.join(', ')}
+        />
+        <img className={classes.cardImg} src={coverImgUrl} alt="playlist cover"/>
+        <CardContent>
+          <Typography component="p" style={{ maxWidth: '50%' }}>
+            {description}
+          </Typography>
+        </CardContent>
+        <CardActions disableActionSpacing>
+          <IconButton aria-label="Add to favorites">
+            <FavoriteIcon />
+          </IconButton>
+          <IconButton
+            aria-label="ShufflePlay"
+            onClick={this.handleShuffleClick}
           >
-            <CardContent>
-              <Typography paragraph type="headline">
-                {`播放列表: 共 ${tracks.length} 首歌`}
-              </Typography>
-              <SongList {...{tracks, playOrder}}/>
-            </CardContent>
-          </Collapse>
-        </Card>
+            <ShuffleIcon />
+          </IconButton>
+          <div className={classes.flexGrow} />
+          <IconButton
+            className={classnames(classes.expand, {
+              [classes.expandOpen]: this.state.expanded
+            })}
+            onClick={this.handleExpandClick}
+            aria-expanded={this.state.expanded}
+            aria-label="Show more"
+          >
+            <ExpandMoreIcon />
+          </IconButton>
+        </CardActions>
+        <Collapse
+          in={this.state.expanded}
+          transitionDuration="auto"
+          unmountOnExit
+        >
+          <CardContent>
+            <Typography paragraph type="headline">
+              {`播放列表: 共 ${tracks.length} 首歌`}
+            </Typography>
+            <SongList {...{ tracks, playOrder }} />
+          </CardContent>
+        </Collapse>
+      </Card>
     );
   }
 }
