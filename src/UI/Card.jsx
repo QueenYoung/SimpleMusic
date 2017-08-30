@@ -63,20 +63,22 @@ class NowPlayingCard extends Component {
     const playState = this.props.handlePlay();
     this.setState(prevState => {
       return {
-        played: !playState
+        played: playState
       };
     });
   };
 
   componentWillReceiveProps(nextProps) {
-    this.setState({played: !nextProps.iconShowPlay})
+    if (this.props.iconShowPlay !== nextProps.iconShowPlay) {
+      this.setState({ played: !nextProps.iconShowPlay })
+    }
   }
 
   render() {
     const { classes, songName, singer, picUrl, show } = this.props;
     return (
       <Card className={classes.card} raised
-        style={{ visibility: show ? 'visible' : 'hidden' }}>
+        style={{ opacity: show ? 1 : 0 }}>
         <div className={classes.details}>
           <div className={classes.cover}>
             <img

@@ -38,8 +38,8 @@ class SongList extends Component {
     const { playOrder, currentPlay } = this.state;
     const isNext = direction === 'right' ? 1 : -1;
     // 找到当前播放位置的下标的, 下一次播放的下标.
-    const nextIndex = playOrder.indexOf(currentPlay) + isNext;
-    if (nextIndex < 0) return;
+    let nextIndex = playOrder.indexOf(currentPlay) + isNext;
+    if (nextIndex < 0) nextIndex = playOrder.length - 1;
     const nextPlayer = playOrder[nextIndex];
 
     this.playMusic(tracks[nextPlayer].id, nextPlayer);
@@ -47,6 +47,7 @@ class SongList extends Component {
 
   componentWillUnmount() {
     this.music.pause();
+    this.clearAnimation();
     this.audioRemoveListener();
     console.log('Bye.');
   }
@@ -131,7 +132,6 @@ class SongList extends Component {
     music.addEventListener('canplay', musicStart);
     music.addEventListener('playing', animationReset);
     music.addEventListener('pause', clearAnimation);
-
     music.addEventListener('error', handleError);
   };
 
@@ -150,7 +150,7 @@ class SongList extends Component {
   componentWillReceiveProps(nextProps) {
     const { playOrder } = nextProps;
     if (!playOrder) return;
-    this.setState({ playOrder }, () => {
+    this.setState({ playOrder, iconShowPlay: false }, () => {
       const findId = this.props.tracks[playOrder[0]].id;
       this.playMusic(findId, playOrder[0]);
     });

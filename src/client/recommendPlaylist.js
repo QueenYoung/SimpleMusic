@@ -31,10 +31,9 @@ function getMusic(url, params = {}) {
   let query = Object.entries(params)
     .map(([key, value]) => `${key}=${value}`)
     .join('&');
-  console.log(url + query);
-  let networkDataReceived = false;
+  // let networkDataReceived = false;
 
-  const networkUpdate = Promise.race([
+  return Promise.race([
     timeout(20000),
     fetch(url + query, {
       headers: new Headers({
@@ -45,21 +44,20 @@ function getMusic(url, params = {}) {
     })
       .then(checkStatus)
       .then(res => {
-        networkDataReceived = true;
+        // networkDataReceived = true;
         return res.json();
       })
   ]);
 
-  return caches.match(url).then(res => {
-    if (!res) throw Error('No data.');
-    return res.json();
-  }).then(data => {
-    if (!networkDataReceived) {
-      return data;
-    }
-  })
-  .catch(() => networkUpdate)
-  .catch((err) => console.log(err));
+  // return caches.match(url).then(res => {
+  //   if (!res) throw Error('No data.');
+  //   return res.json();
+  // }).then(data => {
+  //   if (!networkDataReceived) {
+  //     return data;
+  //   }
+  // })
+  // .catch(() => networkUpdate)
 }
 
 /*

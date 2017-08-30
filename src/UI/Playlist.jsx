@@ -54,6 +54,7 @@ class PlayList extends Component {
   handleExpandClick = () => {
     this.setState({ expanded: !this.state.expanded });
   };
+
   componentWillUnmount() {
     console.log('I am die!');
   }
