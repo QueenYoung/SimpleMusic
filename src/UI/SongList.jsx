@@ -12,7 +12,7 @@ import Divider from 'material-ui/Divider';
 
 const styleSheet = theme => ({
   root: {
-    maxWidth: '50%',
+    maxWidth: '100%',
     background: theme.palette.background.paper
   },
   button: {
@@ -31,14 +31,13 @@ class SongList extends Component {
     iconShowPlay: false
   };
 
-  music = document.querySelector('#music');
 
   handleSwitchSong = direction => {
     const { tracks } = this.props;
     const { playOrder, currentPlay } = this.state;
     const isNext = direction === 'right' ? 1 : -1;
     // 找到当前播放位置的下标的, 下一次播放的下标.
-    let nextIndex = playOrder.indexOf(currentPlay) + isNext;
+    let nextIndex = (playOrder.indexOf(currentPlay) + isNext) % playOrder.length;
     if (nextIndex < 0) nextIndex = playOrder.length - 1;
     const nextPlayer = playOrder[nextIndex];
 
@@ -144,6 +143,7 @@ class SongList extends Component {
   };
 
   componentDidMount() {
+    this.music = document.querySelector('#music');
     this.audioAddListener();
   }
 
@@ -217,6 +217,7 @@ class SongList extends Component {
     const { tracks, classes } = this.props;
     return (
       <div>
+        <audio id="music" preload="auto"/>
         <List className={classes.root} onClick={this.handleClickItem}>
           {tracks.map(({ name, id }, i) =>
             <div key={id}>
