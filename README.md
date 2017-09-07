@@ -7,13 +7,13 @@ This app is powered by create-react-app.
 Install dependencies:
 
 ```
-npm i
+yarn install
 ```
 
 Boot:
 
 ```
-npm start
+yarn dev
 ```
 
 The app will be available at `http://localhost:3000`
